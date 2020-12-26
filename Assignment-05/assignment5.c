@@ -1,5 +1,6 @@
 #include<stdio.h>
 
+//Convert Secs To Minute
 int *min_sec(int sec)
 {
 	static int m_s[2];
@@ -8,6 +9,7 @@ int *min_sec(int sec)
 	return m_s;
 }
 
+//Convert Mins To Hours
 int *hr_min(int min)
 {
 	static int h_m[2];
@@ -28,7 +30,5 @@ void main()
 	ms=min_sec(sec);
 
 	hm=hr_min(*(ms));
-
 	printf("%d seconds is equal to %d hours %d minutes and %d seconds",sec,*hm,*(hm+1),*(ms+1));
-
 }
