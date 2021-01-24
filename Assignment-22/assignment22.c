@@ -1,37 +1,31 @@
 #include <stdio.h>
+#include <stdlib.h>
+#define SIZE 5
 
-//define stats struct
 struct stats {
 	int points;
 	int games;
 };
 
-//create instance of 5 players stats structs
-struct stats players[5];
+struct stats players[SIZE];
 
-int counter;
-
-int main (void)
+void main()
 {
-	//loop through getting input for both stats members for each stats players struct
-	for (counter = 0; counter < 5; counter++)
-	{
-		printf("Enter Player %d's point total: ", (counter + 1));
-		scanf("%d", &players[counter].points);
+	int i;
+	float avg;
 
-		printf("Enter Player %d's game total: ", (counter + 1));
-		scanf("%d", &players[counter].games);
+	for (i=0;i<SIZE;i++)
+	{
+		printf("Enter Player %d's point total : ",(i+1));
+		scanf("%d",&players[i].points);
+
+		printf("Enter Player %d's game total : ",(i+1));
+		scanf("%d",&players[i].games);
 	}
 
-	printf("\n");
-	
-	//you know this by now, you're a C god
-	for (counter = 0; counter < 5; counter++)
+	for(i=0;i<SIZE;i++)
 	{
-		float average = (float)(players[counter].points)/(players[counter].games);
-
-		printf("Player %d's scoring average was %.2f ppg.\n", (counter + 1), average);
+		avg=(players[i].points)/(players[i].games);
+		printf("Player %d's scoring average was %.2f ppg\n",(i+1),avg);
 	}
-	
-	return 0;
 }
