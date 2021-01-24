@@ -1,46 +1,48 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-
-int main (void)
+#include <stdlib.h>
+#include <string.h>
+void main()
 {
 	int filedescriptor;
+	char filename[100];
+	char message[100];
+	
+	printf("Enter Your FileName : ");
+	scanf("%s",filename);
 
-	filedescriptor = open("testfile.txt", O_WRONLY | O_CREAT, S_IRWXU);
+	filedescriptor = open(filename, O_WRONLY | O_CREAT, S_IRWXU);
 
 	if (filedescriptor < 0)
 	{
-		printf("The open operation failed...");
-		return -1;
+		printf("The operation Failled. Exiting\n");
+		exit(-1);
 	}
 	else 
 	{
-		printf("The open operation succeeded!\n");
-		
+		printf("File %s Has Been Created \n",filename);
 	}
+	
+	printf("Enter A Short Test Message : ");
+	scanf("%s",message);
 
-	int writertn;
+	//int wr;
 
-	writertn = write(filedescriptor, "Writing test data to the file", 30);
-
-	if (writertn != 30)
+	if (write(filedescriptor,message,strlen(message)) != strlen(message))
 	{
-		printf("The write operation failed...");
-		return -1;
+		printf("Could Not Write To File \n");
+		exit(-2);	
 	}
 	else
 	{
-		printf("The write operation succeeded!");
+		printf("Wrote Successfully To %s",filename);
 	}
 
 	if (close(filedescriptor) != 0)
 	{
 		printf("The close operation failed...");
-		return -1;
+		exit(-3);
 	}
-
-	return 0;
-
+	
 }
-
-
