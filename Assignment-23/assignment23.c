@@ -1,25 +1,22 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-struct example {
+struct Struct{
 	int integer;
 };
 
-int main (void)
+void main (void)
 {
-	struct example *ptr;
-	struct example test;
+	struct Struct *ptr;
+	struct Struct test;
 
 	ptr = &test;
 
-	test.integer = 5;
-	printf("%d\n", test.integer);
+	printf("Enter a number : ");
+	scanf("%d",&(test.integer));
 
-	(*ptr).integer = 6;
-	printf("%d\n", test.integer);
+	printf("Printing Using . %d\n", test.integer);
+	printf("Printing Using * %d\n", (*ptr).integer);
+	printf("Printing Using -> %d\n", ptr->integer);
 
-	ptr->integer = 7;
-	printf("%d\n", test.integer);
-
-	return 0;
 }
-
