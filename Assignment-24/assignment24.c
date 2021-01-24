@@ -1,22 +1,26 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
-int main (void)
+void main (void)
 {
 	int filedescriptor;
+	char filename[50];
+	
+	printf("Enter Your FileName : ");
+	scanf("%s",filename);
 
-	filedescriptor = open("testfile.txt", O_WRONLY | O_CREAT, S_IRWXU);
+	filedescriptor = open(filename, O_WRONLY | O_CREAT, S_IRWXU);
 
 	if (filedescriptor < 0)
 	{
-		printf("The open operation failed...");
-		return -1;
+		printf("The operation Failled. Exiting\n");
+		exit(-1);
 	}
 	else 
 	{
-		printf("The open operation succeeded!");
-		return 0;
+		printf("File %s Has Been Created \n",filename);
 	}
 	
 }
