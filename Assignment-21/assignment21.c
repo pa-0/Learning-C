@@ -1,60 +1,55 @@
+#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
-struct data {
-	char first[20];
-	char last[20];
-	int employee_id;
-	int last_4_SSN;
-	char title[20];
+struct employee
+{
+	char firstname[100];
+	char lastname[100];
+
+	long int ID;
+	int SSN;
+
+	char title[100];	
 };
 
-struct employees {
-	struct data employee1;
-	struct data employee2;
-} engineering_dept;
-
-int main(void)
+struct employeeList
 {
-	//scanf the input into the correct variable
-	//engineering_dept = name of the instance of the 'employees' struct
-	//employee1 = member of the 'employees' struct
-	//first = member of the 'data' struct
-	//notice that employee1 and employee2 are 'data' struct instances themselves
-	for(int i = 0; i < 2; i++) {
-		struct data *employee = &engineering_dept.employee1;
-		if(i > 0)
-			employee = &engineering_dept.employee2;
+	struct employee employee1;
+	struct employee employee2;
+};
 
-		printf("Enter the employee's first name: ");
-		scanf("%s", &employee->first);
+void displayEmployee(struct employee *s)
+{
+	printf("Employee Information For %s %s\nID : %d\nSSN : %d\nTitle : %s Engineer\n\n",s->firstname,s->lastname,s->ID,s->SSN,s->title);
+}
 
-		printf("Enter the employee's last name: ");
-		scanf("%s", &employee->last);
+void inputData(struct employee *s)
+{
+	printf("Enter Employee's First Name : ");
+	scanf("%s",s->firstname);
 
-		printf("Enter the employee's ID number: ");
-		scanf("%d", &employee->employee_id);
+	printf("Enter Employee's Last Name : ");
+	scanf("%s",s->lastname);
 
-		printf("Enter the last four digits of the employee's SSN: ");
-		scanf("%d", &employee->last_4_SSN);
+	printf("Enter Employee ID : ");
+	scanf("%d",&(s->ID));
 
-		printf("Enter the employee's job title (do not include the word \'Engineer\'): ");
-		scanf("%s", &employee->title);
+	printf("Enter SSN Number : ");
+	scanf("%d",&(s->SSN));
 
-		puts("");
-	}
+	printf("Enter the Employee's Job Title (do not include the word 'Engineer') : ");
+	scanf("%s",s->title);	
+}
 
-	//print all the info we just stored for each employee
-	for(int i = 0; i < 2; i++) {
-		struct data *employee = &engineering_dept.employee1;
-		if(i > 0)
-			employee = &engineering_dept.employee2;
+void main()
+{
+	struct employeeList EMPLOYEE_LIST;
+	inputData(&(EMPLOYEE_LIST.employee1));
+	printf("\n");
+	
+	inputData(&(EMPLOYEE_LIST.employee2));
+	printf("\n");
 
-		printf("\nEmployee information for %s %s: ", employee->first, employee->last);
-		printf("\nID: %d", employee->employee_id);
-		printf("\nSSN: %d", employee->last_4_SSN);
-		printf("\nTitle: %s Engineer\n", employee->title);
-	}
-
-	return 0;
+	displayEmployee(&EMPLOYEE_LIST.employee1);
+	displayEmployee(&EMPLOYEE_LIST.employee2);
 }
