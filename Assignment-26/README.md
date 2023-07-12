@@ -1,7 +1,7 @@
 ## Assignment
 Now that we've successfully used syscalls and we know how to parse arguments with some research, let's move onto something a little bit more complicated but still very doable. We're going to create a C program that binds a command shell to a listening port, also known as a bind shell. (in TCP!)
 
-I'm going to tell you the syscalls we need to make in order to accomplish this and also try and drop some hints about potential sticking points. I won't be fully walking through this one like our previous excercise, but as always there will be a solution made available should you get stuck (`assignment26.c`). 
+I'm going to tell you the syscalls we need to make in order to accomplish this and also try and drop some hints about potential sticking points. I won't be fully walking through this one like our previous exercise, but as always there will be a solution made available should you get stuck (`assignment26.c`). 
 
 A good resource throughout this excercise will be the socket programming tutorial here: http://www.cs.rpi.edu/~moorthy/Courses/os98/Pgms/socket.html **Keep referencing this document for every single parameter, every single function.**
 
