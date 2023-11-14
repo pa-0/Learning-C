@@ -26,6 +26,7 @@ int main(void) {
 	}
 
 	if (close(fileDescriptor) < 0) {
+		printf("The close operation failed...");
 		return EXIT_FAILURE;
 	}
 
