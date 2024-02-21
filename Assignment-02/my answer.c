@@ -20,5 +20,7 @@ main code is inside main function
 
 return 0 in main function
 
+how do I make a folder on github site lol
+
 
 */
