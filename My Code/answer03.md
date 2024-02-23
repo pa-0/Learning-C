@@ -7,7 +7,8 @@ Extra Credit: Dynamically allocate the array size of your char variable based on
 
 ## Example Output
 ```c
-tokyo:~/LearningC/ # ./assignment3                                     
+printf(Enter your
+                                 
 Enter your first name: Jimmy
 Enter your last name: Smith
 Hello Jimmy Smith!
