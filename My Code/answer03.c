@@ -15,12 +15,10 @@ Extra Credit: Dynamically allocate the array size of your char variable based on
 printf("Enter your first name":);
 scanf("%s", &first);    
 printf("Enter your last name:");
+scanf("%s", &last);    
 
 
-Enter your first name: Jimmy
 
+printf("Full Name: %s %s," first, last);
 
-  
-Enter your last name: Smith
-Hello Jimmy Smith!
 
