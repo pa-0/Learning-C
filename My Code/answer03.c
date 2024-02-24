@@ -11,14 +11,24 @@ Extra Credit: Dynamically allocate the array size of your char variable based on
 
 
 
+// Online C compiler to run C program online
+#include <stdio.h>
 
-printf("Enter your first name":);
+int main() {
+
+char first[20];
+char last[20];
+
+printf("Enter your first name: ");
 scanf("%s", &first);    
-printf("Enter your last name:");
+printf("Enter your last name: ");
 scanf("%s", &last);    
 
 
 
-printf("Full Name: %s %s," first, last);
+printf("Full Name: %s %s", first, last);
 
+
+    return 0;
+}
 
