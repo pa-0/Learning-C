@@ -6,8 +6,6 @@ int main(void)
   float floatvar = 3.14;
   char string[] = "Hello, World!";
 
-  printf("%d is an integer!\n", integer);
-  printf("%f is a float!\n", floatvar);
-  printf("%s is a char!\n", string);
-
+ printf("%d is an intgeger!\n%.2f is a float!\n%s is a char array!\n",integer,floatvar,string);
+  return 0;
 }
