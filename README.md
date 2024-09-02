@@ -1,6 +1,4 @@
 ## Learning C
-This repo is a collection of assignments and mini-programs/projects for beginners trying to learn C.
+This repo is a fork of the famous [h0mbre/Learning-C](https://github.com/h0mbre/Learning-C) project which contains exercises to get familiar with the C language.
 
-**WARNING: During this excercise you will be learning along with me, I am not your teacher, but your peer. I don't know anything about writing robust/correct C, I'm learning just as you are learning. Do not think that these examples are correct.**
-
-Try to complete each task without looking at the solution!
+It contains my own solutions and notes for this material. Also some extra material to dive deeper into concepts which I find interesting.
