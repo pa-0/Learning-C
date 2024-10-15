@@ -184,7 +184,7 @@ void passwordStrength(int *pStrengthScore)
 int main()
 {
 
-    char exit[2];
+    char exit;
     bool keepGoing = true;
     char password[100];
     int strengthScore = 0;
@@ -199,6 +199,7 @@ int main()
         printf("Enter a password to check the strength: ");
         scanf("%s", password);
         
+
         checkForCommonPasswords(pPassword, pStrengthScore);
         checkPasswordLength(pPassword, pStrengthScore, &flag);
         checkUpperCaseLetters(pPassword, pStrengthScore, &flag);
@@ -212,20 +213,17 @@ int main()
         printf("Strength = %d\n", strengthScore);
         printf("==================================\n");
 
-        printf("Would you like to check another password?(y/n): ");
-        scanf("%c", exit);
+        printf("Would you like to check another password?(y/n):");
+        scanf(" %c", &exit);
+        printf("==================================\n");
 
-        if (exit == "n")
+        if (exit == 'n')
         {
             keepGoing = false;
         }
-        else if (exit == "y")
+        else if (exit == 'y')
         {
-            keepGoing;
-        }
-        else{
-            printf("Enter y for yes or n for no.\n");
-            printf("==================================\n");
+            keepGoing = true;
         }
         
     } while (keepGoing);
