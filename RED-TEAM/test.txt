@@ -1,0 +1,4 @@
+Choose an encryption algorithm (e.g., symmetric encryption like AES or simple schemes like XOR-based encryption for learning purposes).
+Symmetric Encryption: Uses the same key for encryption and decryption.
+Asymmetric Encryption: Uses a public key for encryption and a private key for decryption (more complex).
+For simplicity, we assume symmetric encryption (same key for encryption and decryption) in this algorithm.
