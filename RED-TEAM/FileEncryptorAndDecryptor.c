@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 int main()
 {
@@ -28,6 +29,7 @@ int main()
     else
     {
         printf("Invalid input!");
+        exit(1);
     }
 
     printf("\nEnter an encryption key of your choice: \n");
