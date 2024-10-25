@@ -15,13 +15,20 @@ char portsList(const int start, const int end, unsigned long *portList)
     }
 }
 
+struct PortStatus
+{
+    unsigned long port;
+    char status[100];
+};
+
 int main()
 {
 
     char targetHost[100];
-    int start, end; // Port range.
-
+    int start, end;  // Port range.
     int timeout = 5; // Connection timeout.
+
+    struct PortStatus portStatus;
 
     printf("PORT SCANNER\n");
     printf("=============\n");
@@ -49,6 +56,9 @@ int main()
 
     for (int i = 0; i < size; i++)
     {
+
+        /* Perform port scan. */
+
         printf("===================\n");
         printf("%s:%ld\n", targetHost, pPortList[i]);
     }
