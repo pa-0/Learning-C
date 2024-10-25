@@ -18,7 +18,9 @@ Target Host/IP: Prompt the user to enter the target IP address or hostname.
 Port Range: Ask the user for the range of ports to scan (e.g., 1-65535 for all ports, or a specific subset like 20-80).
 Timeout Duration: Optionally, allow the user to specify a timeout duration for each port to wait for a response (e.g., 1-5 seconds).
 Concurrency: Ask if the user wants to perform the scan in parallel (multithreaded) or sequentially.
-Step 3: Resolve Hostname to IP (if necessary)
+
+## Step 3: Resolve Hostname to IP (if necessary)
+
 If the user provided a hostname, perform a DNS lookup to resolve the hostname into an IP address.
 If the input is already an IP address, skip this step and proceed.
 
