@@ -3,7 +3,7 @@
 #include <string.h>
 
 // Function to create a list of ports from the specified range.
-char portsList(const int start, const int end, char *portList)
+char portsList(const int start, const int end, unsigned long *portList)
 {
 
     int index = 0;
@@ -19,11 +19,9 @@ int main()
 {
 
     char targetHost[100];
-    int start, end;             // Port range.
-    int size = end - start + 1; // Size of port list.
-    char portList[size];
-    char *pPortList = portList; // Pointer to port list array.
-    int timeout = 5;            // Connection timeout.
+    int start, end; // Port range.
+
+    int timeout = 5; // Connection timeout.
 
     printf("PORT SCANNER\n");
     printf("=============\n");
@@ -34,16 +32,25 @@ int main()
     scanf("%s", &targetHost);
 
     // Ask the user for the target IP Address.
-    printf("Enter the port number:\n");
+    printf("Enter the range of ports to scan:\n");
     printf("============================\n");
-    scanf("%d", &targetPort);
+    printf("Enter the starting port:\n");
+    printf("========================\n");
+    scanf("%d", &start);
+    printf("Enter the ending port:\n");
+    printf("========================\n");
+    scanf("%d", &end);
 
-    printf("Target => %s:%d\n", targetHost, targetPort);
+    int size = end - start + 1; // Size of port list.
+    unsigned long portList[size];
+    unsigned long *pPortList = portList; // Pointer to port list array.
+
     portsList(start, end, pPortList);
 
     for (int i = 0; i < size; i++)
     {
-        printf("%d\n", portList[i]);
+        printf("===================\n");
+        printf("%s:%ld\n", targetHost, pPortList[i]);
     }
     return 0;
 }
