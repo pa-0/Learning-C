@@ -1,3 +1,10 @@
+/*
+PASSWORD STRENGTH CHECKER PROGRAM BY DANTECHOPPAXXX.
+==============================================
+This program evaluates a password based on various criteria such as length, character variety, and complexity to determine how secure it is.
+
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -6,13 +13,13 @@
 #define NUM_OF_COMMON_PASSWORDS 6
 
 struct Flags
-        {
-            int length,
-            digits,
-            uppercase,
-            lowercase,
-            specialCharacter;
-        };
+{
+    int length,
+        digits,
+        uppercase,
+        lowercase,
+        specialCharacter;
+};
 
 void checkPasswordLength(char *pPassword, int *pStrengthScore, struct Flags *flag)
 {
@@ -43,8 +50,10 @@ void checkPasswordLength(char *pPassword, int *pStrengthScore, struct Flags *fla
 void checkUpperCaseLetters(char *pPassword, int *pStrengthScore, struct Flags *flag)
 {
     // Check if password contains Upper Case letters.
-    while (*pPassword) {
-        if (isupper(*pPassword)){
+    while (*pPassword)
+    {
+        if (isupper(*pPassword))
+        {
             *pStrengthScore = *pStrengthScore + 10;
             flag->uppercase = 1;
             break;
@@ -56,8 +65,10 @@ void checkUpperCaseLetters(char *pPassword, int *pStrengthScore, struct Flags *f
 void checkLowerCaseLetters(char *pPassword, int *pStrengthScore, struct Flags *flag)
 {
     // Check if password contains Lower Case letters.
-    while (*pPassword) {
-        if (islower(*pPassword)){
+    while (*pPassword)
+    {
+        if (islower(*pPassword))
+        {
             *pStrengthScore = *pStrengthScore + 10;
             flag->lowercase = 1;
             break;
@@ -69,8 +80,10 @@ void checkLowerCaseLetters(char *pPassword, int *pStrengthScore, struct Flags *f
 void checkDigits(char *pPassword, int *pStrengthScore, struct Flags *flag)
 {
     // Check if password contains Digits.
-    while (*pPassword) {
-        if (isdigit(*pPassword)){
+    while (*pPassword)
+    {
+        if (isdigit(*pPassword))
+        {
             *pStrengthScore = *pStrengthScore + 10;
             flag->digits = 1;
             break;
@@ -82,8 +95,10 @@ void checkDigits(char *pPassword, int *pStrengthScore, struct Flags *flag)
 void checkSpecialCharacter(char *pPassword, int *pStrengthScore, struct Flags *flag)
 {
     // Check if password contains Special Character.
-    while (*pPassword) {
-        if (!isalnum(*pPassword)){
+    while (*pPassword)
+    {
+        if (!isalnum(*pPassword))
+        {
             *pStrengthScore = *pStrengthScore + 20;
             flag->specialCharacter = 1;
             break;
@@ -106,13 +121,10 @@ void checkRepeatedCharacter(char *pPassword, int *pStrengthScore)
                 *pStrengthScore = *pStrengthScore - 5;
             }
         }
-        
-        
-    
     }
-        
-        pPassword++;
-}        
+
+    pPassword++;
+}
 
 void checkForCommonPasswords(char *pPassword, int *pStrengthScore)
 {
@@ -129,31 +141,28 @@ void checkForCommonPasswords(char *pPassword, int *pStrengthScore)
             break;
         }
     }
-    
 }
 
 void passwordComplexity(char *pPassword, int *pStrengthScore, struct Flags flag)
 {
     // Evaluate the Password’s Complexity.
-    if (flag.length == 1  && flag.uppercase == 1  && flag.lowercase == 1  && flag.digits == 1  && flag.specialCharacter == 1)
+    if (flag.length == 1 && flag.uppercase == 1 && flag.lowercase == 1 && flag.digits == 1 && flag.specialCharacter == 1)
     {
         printf("High Complexity\n");
         printf("==================================\n");
         *pStrengthScore = *pStrengthScore + 20;
     }
-    else if (flag.length == 1  && flag.digits == 1  && flag.lowercase == 1)
+    else if (flag.length == 1 && flag.digits == 1 && flag.lowercase == 1)
     {
         printf("Average Complexity\n");
         printf("==================================\n");
         *pStrengthScore = *pStrengthScore + 10;
     }
-    else{
+    else
+    {
         printf("Low Complexity\n");
         printf("==================================\n");
     }
-    
-    
-    
 }
 
 void passwordStrength(int *pStrengthScore)
@@ -171,14 +180,13 @@ void passwordStrength(int *pStrengthScore)
         printf("Suggestions: Add digits,\nSpecial characters\nand Uppercase letters.\n");
         printf("==================================\n");
     }
-    else{
+    else
+    {
         printf("Your password is weak!\n");
         printf("==================================\n");
         printf("Suggestions: Add digits,\nSpecial characters\nand Uppercase letters.\n");
         printf("==================================\n");
     }
-    
-    
 }
 
 int main()
@@ -193,12 +201,10 @@ int main()
 
     struct Flags flag;
 
-    
     do
     {
         printf("Enter a password to check the strength: ");
         scanf("%s", password);
-        
 
         checkForCommonPasswords(pPassword, pStrengthScore);
         checkPasswordLength(pPassword, pStrengthScore, &flag);
@@ -225,9 +231,8 @@ int main()
         {
             keepGoing = true;
         }
-        
+
     } while (keepGoing);
-    
 
     return 0;
 }

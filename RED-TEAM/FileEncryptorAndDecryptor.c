@@ -1,9 +1,16 @@
+/*
+FILE ENCYPTOR AND DECRYPTOR PROGRAM BY DANTECHOPPAXXX.
+==============================================
+This program secures sensitive information by converting it into ciphertext (encryption) and reverses this process to retrieve the original data (decryption).
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-
-void xorEncryptFile(const char *path, const char *key){
+void xorEncryptFile(const char *path, const char *key)
+{
 
     FILE *inputFile = fopen(path, "rb");
 
@@ -15,13 +22,13 @@ void xorEncryptFile(const char *path, const char *key){
     }
     else
     {
-       // Create a buffer to store the file data.
+        // Create a buffer to store the file data.
         unsigned char *buffer;
         long fileSize;
 
         // Find the size of the file
-        fseek(inputFile, 0, SEEK_END);     // Move file pointer to the end of the file
-        fileSize = ftell(inputFile);       // Get the current file pointer position (file size)
+        fseek(inputFile, 0, SEEK_END); // Move file pointer to the end of the file
+        fileSize = ftell(inputFile);   // Get the current file pointer position (file size)
         rewind(inputFile);
 
         // Allocate memory to store the file contents
@@ -35,7 +42,7 @@ void xorEncryptFile(const char *path, const char *key){
 
         // Read the entire file into the buffer
         size_t bytesRead = fread(buffer, sizeof(unsigned char), fileSize, inputFile);
-        
+
         // Check if the size of bytes read is equal to the file size.
         if (bytesRead != fileSize)
         {
@@ -46,26 +53,25 @@ void xorEncryptFile(const char *path, const char *key){
         }
 
         printf("File contents read successfully!\n");
-        
+
         // Create a file to store the binary data.
         FILE *data = fopen("data.bin", "wb");
         if (data == NULL)
         {
             printf("Failed to open file!\n");
-            return; 
+            return;
         }
-        
+
         // Write binary data to a file.
         fwrite(buffer, sizeof(unsigned char), fileSize, data);
         fclose(data);
-        
+
         printf("\n%s\n", buffer);
         // Cleanup
         free(buffer);
         fclose(inputFile);
-
     }
-    
+
     FILE *dataFile = fopen("data.bin", "rb");
     if (dataFile == NULL)
     {
@@ -84,9 +90,9 @@ void xorEncryptFile(const char *path, const char *key){
     size_t keyIndex = 0;
     unsigned char buffer;
 
-
     // Read the file byte by byte.
-    while(fread(&buffer, sizeof(unsigned char), 1, dataFile)){
+    while (fread(&buffer, sizeof(unsigned char), 1, dataFile))
+    {
         // XOR the buffer with the key byte.
         buffer ^= key[keyIndex % keyLength];
         keyIndex++;
@@ -102,7 +108,8 @@ void xorEncryptFile(const char *path, const char *key){
     printf("File encryption completed!\n");
 }
 
-void xorDecryptFile(const char *path, const char *key){
+void xorDecryptFile(const char *path, const char *key)
+{
 
     FILE *inputFile = fopen(path, "rb");
 
@@ -110,38 +117,38 @@ void xorDecryptFile(const char *path, const char *key){
     if (inputFile == NULL)
     {
         printf("Failed to read file!(Hint: Make sure the file exist)\n");
-        return ;
-    }
-    else{
-        FILE *outputFile = fopen("decrypted.bin", "wb");
-    if (outputFile == NULL)
-    {
-        printf("Failed to open file!\n");
         return;
     }
+    else
+    {
+        FILE *outputFile = fopen("decrypted.bin", "wb");
+        if (outputFile == NULL)
+        {
+            printf("Failed to open file!\n");
+            return;
+        }
 
-    size_t keyLength = strlen(key);
-    size_t keyIndex = 0;
-    unsigned char buffer;
+        size_t keyLength = strlen(key);
+        size_t keyIndex = 0;
+        unsigned char buffer;
 
+        // Read the file byte by byte.
+        while (fread(&buffer, sizeof(unsigned char), 1, inputFile))
+        {
+            // XOR the buffer with the key byte.
+            buffer ^= key[keyIndex % keyLength];
+            keyIndex++;
 
-    // Read the file byte by byte.
-    while(fread(&buffer, sizeof(unsigned char), 1, inputFile)){
-        // XOR the buffer with the key byte.
-        buffer ^= key[keyIndex % keyLength];
-        keyIndex++;
+            // Write the encrypted byte to the output file.
+            fwrite(&buffer, sizeof(unsigned char), 1, outputFile);
+        }
 
-        // Write the encrypted byte to the output file.
-        fwrite(&buffer, sizeof(unsigned char), 1, outputFile);
+        // Close the files.
+        fclose(inputFile);
+        fclose(outputFile);
+
+        printf("File decryption completed!\n");
     }
-
-    // Close the files.
-    fclose(inputFile);
-    fclose(outputFile);
-
-    printf("File decryption completed!\n");
-    }
-
 }
 
 int main()
@@ -191,6 +198,5 @@ int main()
         return 1;
     }
 
-
     return 0;
-} 
+}

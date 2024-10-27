@@ -13,7 +13,6 @@ This program scans a specific range of ports on a target IP or hostname to deter
 #include <sys/socket.h>
 #include <errno.h>
 
-
 // Function to create a list of ports from the specified range.
 char portsList(const int start, const int end, unsigned long *portList)
 {
@@ -28,7 +27,8 @@ char portsList(const int start, const int end, unsigned long *portList)
 }
 
 // Fucntion to scan port on target host.
-int scanPort(const char *ip, unsigned long *port){
+int scanPort(const char *ip, unsigned long *port)
+{
     int sockfd;
     struct sockaddr_in server_addr;
 
@@ -39,7 +39,7 @@ int scanPort(const char *ip, unsigned long *port){
         perror("Socket creation failed");
         return -1;
     }
-    
+
     // Set up server address structure.
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
@@ -49,9 +49,9 @@ int scanPort(const char *ip, unsigned long *port){
         close(sockfd);
         return -1;
     }
-    
+
     // Attempt to connect to the server.
-    int connection_result = connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
+    int connection_result = connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
 
     // Interpret the conection result.
     if (connection_result == 0)
@@ -68,17 +68,17 @@ int scanPort(const char *ip, unsigned long *port){
     {
         printf("Port %ld is FILTERED (timed out) on %s\n", port, ip);
     }
-    else{
+    else
+    {
         printf("Error occurred: %s\n", strerror(errno));
     }
-    
+
     close(sockfd);
     return -1;
-
 }
 
-
-void writeResult(FILE *file, unsigned long *port, const char *status, const char *host){
+void writeResult(FILE *file, unsigned long *port, const char *status, const char *host)
+{
     fprintf(file, "Port %ld is %s on %s\n", port, status, host);
 }
 
@@ -87,7 +87,7 @@ int main()
 
     char targetHost[100];
     char *pTargetHost = targetHost; // Pointer to target IP.
-    int start, end;  // Port range.
+    int start, end;                 // Port range.
 
     printf("PORT SCANNER\n");
     printf("=============\n");
@@ -112,7 +112,7 @@ int main()
     unsigned long *pPortList = portList; // Pointer to port list array.
 
     portsList(start, end, pPortList);
-    
+
     // Open file for writing.
     FILE *file = fopen("ScanResults.txt", "w");
     if (file == NULL)
@@ -120,7 +120,7 @@ int main()
         perror("Failed to open file!");
         return 1;
     }
-    
+
     for (int i = 0; i < size; i++)
     {
         /* Perform port scan. */
@@ -133,10 +133,10 @@ int main()
         {
             writeResult(file, pPortList[i], "CLOSED", pTargetHost);
         }
-        else{
+        else
+        {
             writeResult(file, pPortList[i], "FILTERED", pTargetHost);
         }
-        
     }
 
     fclose(file);
