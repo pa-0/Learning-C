@@ -12,6 +12,7 @@ This program scans a specific range of ports on a target IP or hostname to deter
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <errno.h>
+#include <sys/time.h>
 
 // Function to create a list of ports from the specified range.
 char portsList(const int start, const int end, unsigned long *portList)
@@ -27,7 +28,7 @@ char portsList(const int start, const int end, unsigned long *portList)
 }
 
 // Fucntion to scan port on target host.
-int scanPort(const char *ip, unsigned long *port)
+int scanPort(const char *ip, unsigned long port, int timeout_seconds)
 {
     int sockfd;
     struct sockaddr_in server_addr;
@@ -40,9 +41,28 @@ int scanPort(const char *ip, unsigned long *port)
         return -1;
     }
 
+    // Set up the timeout structure
+    struct timeval timeout;
+    timeout.tv_sec = timeout_seconds;
+    timeout.tv_usec = 0;
+
+    // Apply the timeout to the socket
+    if (setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) < 0)
+    {
+        perror("Failed to set socket send timeout");
+        close(sockfd);
+        return -1;
+    }
+    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0)
+    {
+        perror("Failed to set socket receive timeout");
+        close(sockfd);
+        return -1;
+    }
+
     // Set up server address structure.
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
+    server_addr.sin_port = htons((unsigned short)port);
     if (inet_pton(AF_INET, ip, &server_addr.sin_addr) <= 0)
     {
         perror("Invalid IP address!");
@@ -56,17 +76,17 @@ int scanPort(const char *ip, unsigned long *port)
     // Interpret the conection result.
     if (connection_result == 0)
     {
-        printf("Port %ld is OPEN on %s\n", port, ip);
+        printf("Port %lu is OPEN on %s\n", port, ip);
         close(sockfd);
         return 0;
     }
     else if (errno == ECONNREFUSED)
     {
-        printf("Port %ld is CLOSED on %s\n", port, ip);
+        printf("Port %lu is CLOSED on %s\n", port, ip);
     }
     else if (errno == ETIMEDOUT)
     {
-        printf("Port %ld is FILTERED (timed out) on %s\n", port, ip);
+        printf("Port %lu is FILTERED (timed out) on %s\n", port, ip);
     }
     else
     {
@@ -77,9 +97,9 @@ int scanPort(const char *ip, unsigned long *port)
     return -1;
 }
 
-void writeResult(FILE *file, unsigned long *port, const char *status, const char *host)
+void writeResult(FILE *file, unsigned long port, const char *status, const char *host)
 {
-    fprintf(file, "Port %ld is %s on %s\n", port, status, host);
+    fprintf(file, "Port %lu is %s on %s\n", port, status, host);
 }
 
 int main()
@@ -88,6 +108,7 @@ int main()
     char targetHost[100];
     char *pTargetHost = targetHost; // Pointer to target IP.
     int start, end;                 // Port range.
+    int timeout = 3;
 
     printf("PORT SCANNER\n");
     printf("=============\n");
@@ -124,7 +145,7 @@ int main()
     for (int i = 0; i < size; i++)
     {
         /* Perform port scan. */
-        int scanResult = scanPort(pTargetHost, pPortList[i]);
+        int scanResult = scanPort(pTargetHost, pPortList[i], timeout);
         if (scanResult == 0)
         {
             writeResult(file, pPortList[i], "OPEN", pTargetHost);
