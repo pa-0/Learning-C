@@ -16,6 +16,7 @@ int main()
     int sockfd, client_socket, c;
     struct sockaddr_in server_addr, client_addr;
     char *message;
+    char client_message[2000], server_message[2000];
 
     // Create a socket.
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -39,36 +40,57 @@ int main()
     printf("Server is ready and bound to port %d\n", SERVER_PORT);
     printf("=======================================\n");
 
-    while (1)
+    // Listen for incoming connections.
+    listen(sockfd, 3);
+
+    printf("Waiting for incoming connections...\n");
+    printf("====================================\n");
+
+    c = sizeof(struct sockaddr_in);
+
+    // Accept incoming client connections.
+    client_socket = accept(sockfd, (struct sockaddr *)&client_addr,(socklen_t*)&c);
+    if (client_socket < 0)
     {
-        // Listen for incoming connections.
-        listen(sockfd, 3);
-
-        printf("Waiting for incoming connections...\n");
-        printf("====================================\n");
-
-        c = sizeof(struct sockaddr_in);
-
-        // Accept incoming client connections.
-        client_socket = accept(sockfd, (struct sockaddr *)&client_addr,(socklen_t*)&c);
-        if (client_socket < 0)
-        {
-            perror("Failed to accept client connection!\n");
-            return -1;
-        }
-        
-        printf("Connection Accepted!\n");
-
-        // Send a welcome message to the client.
-        message = "Hello Neo, Welcome to The Matrix!\n";
-        write(client_socket, message, strlen(message));
-
-        // Close the sockets after handling the client
-        //close(client_socket);
-        //close(sockfd);
+        perror("Failed to accept client connection!\n");
+        return -1;
     }
     
-   
+    printf("Connection Accepted!\n");
+    
+    while (1)
+    {
+        // // Send a welcome message to the client.
+        // message = "Hello Neo, Welcome to The Matrix!\n";
+        // write(client_socket, message, strlen(message));
+
+        memset(client_message, 0, sizeof(client_message));
+
+        // Receive a message from the client.
+        if (recv(client_socket, client_message,sizeof(client_message), 0) < 0)
+        {
+            perror("Failed to receive client message!\n");
+            break;
+        }
+        
+        printf("Client: %s\n", client_message);
+
+        // Get a message to send to the client.
+        printf("Server: ");
+        fgets(server_message, sizeof(server_message), stdin);
+
+        // Send the message to the client.
+        if (send(client_socket,server_message,strlen(server_message), 0) < 0)
+        {
+            perror("Failed to send message to the client!");
+            break;
+        }
+       
+    }
+
+    // Close the sockets after handling the client
+    close(client_socket);
+    close(sockfd);
 
     return 0;
 }
