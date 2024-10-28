@@ -3,6 +3,8 @@
         "*.embeddedhtml": "html",
         "assignment10": "c",
         "stdio.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "time.h": "c",
+        "errno.h": "c"
     }
 }
