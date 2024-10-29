@@ -25,7 +25,7 @@ int main()
         perror("Failed to create socket!\n");
         return -1;
     }
-    
+
     // Setup the server address structure.
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
@@ -49,18 +49,15 @@ int main()
     c = sizeof(struct sockaddr_in);
 
     // Accept incoming client connections.
-    client_socket = accept(sockfd, (struct sockaddr *)&client_addr,(socklen_t*)&c);
+    client_socket = accept(sockfd, (struct sockaddr *)&client_addr, (socklen_t *)&c);
     if (client_socket < 0)
     {
         perror("Failed to accept client connection!\n");
         return -1;
     }
-    
-<<<<<<< HEAD
 
-=======
     printf("Connection Accepted!\n");
-    
+
     while (1)
     {
         // // Send a welcome message to the client.
@@ -70,12 +67,12 @@ int main()
         memset(client_message, 0, sizeof(client_message));
 
         // Receive a message from the client.
-        if (recv(client_socket, client_message,sizeof(client_message), 0) < 0)
+        if (recv(client_socket, client_message, sizeof(client_message), 0) < 0)
         {
             perror("Failed to receive client message!\n");
             break;
         }
-        
+
         printf("Client: %s\n", client_message);
 
         // Get a message to send to the client.
@@ -83,18 +80,16 @@ int main()
         fgets(server_message, sizeof(server_message), stdin);
 
         // Send the message to the client.
-        if (send(client_socket,server_message,strlen(server_message), 0) < 0)
+        if (send(client_socket, server_message, strlen(server_message), 0) < 0)
         {
             perror("Failed to send message to the client!");
             break;
         }
-       
     }
 
     // Close the sockets after handling the client
     close(client_socket);
     close(sockfd);
->>>>>>> 42d545f11190859d0ce0efe13492c802e76785fb
 
     return 0;
 }
