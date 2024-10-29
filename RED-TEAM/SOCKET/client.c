@@ -14,7 +14,7 @@ int main(){
 
     int client_socket;
     struct sockaddr_in server_addr;
-    char server_message[2000];
+    char client_message[2000], server_message[2000];
 
     // Create the client socket.
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -42,18 +42,28 @@ int main(){
     // message = "HELLO MATRIX!\n";
     while (1)
     {
-        if(recv(client_socket, server_message, strlen(server_message), 0) < 0){
-            perror("Couldn't receive message from server!\n");
+        // Get a message to send to the server.
+        printf("Client: ");
+        fgets(client_message, sizeof(client_message), stdin);
+
+        // Send the message to the server.
+        if (send(client_socket,client_message,strlen(client_message), 0) < 0)
+        {
+            perror("Failed to send message to the client!");
+            break;
         }
 
-        printf("Server Message: %s\n", server_message);
+        memset(server_message, 0, sizeof(server_message));
+
+        if(recv(client_socket, server_message, sizeof(server_message), 0) < 0){
+            perror("Couldn't receive message from server!\n");
+            break;
+        }
+
+        printf("Server: %s\n", server_message);
     }
     
+    close(client_socket);
     
-
-    //close(client_socket);
-    
-
-    //printf("%s\n", *message);
     return 0;
 }
