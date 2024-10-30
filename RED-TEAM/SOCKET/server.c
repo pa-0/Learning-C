@@ -15,7 +15,11 @@
 void *clientHandler(void *socket_desc)
 {
     int client_socket = *(int *)socket_desc;
-    char client_message[2000], server_message[2000];
+    char client_message[2000], server_message[2000], *welcomeMessage;
+
+    welcomeMessage = "Welcome To The ChatRoom!\n ";
+    // Display a welcome message and prompt for a username.
+    write(client_socket, welcomeMessage, strlen(welcomeMessage));
 
     // Handle client communication.
     while (1)
@@ -31,9 +35,9 @@ void *clientHandler(void *socket_desc)
 
         printf("Client: %s\n", client_message);
 
-        // Get a message to send to the client.
-        printf("Server: ");
-        fgets(server_message, sizeof(server_message), stdin);
+        // // Get a message to send to the client.
+        // printf("Server: ");
+        // fgets(server_message, sizeof(server_message), stdin);
 
         // Send the message to the client.
         if (send(client_socket, server_message, strlen(server_message), 0) < 0)

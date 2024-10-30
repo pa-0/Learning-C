@@ -14,9 +14,19 @@
 int main()
 {
 
+    char username[100];
     int client_socket;
     struct sockaddr_in server_addr;
     char client_message[2000], server_message[2000];
+
+    printf("Choose a username to chat with: ");
+    fgets(username, sizeof(username), stdin);
+
+    if (strlen(username) < 3)
+    {
+        printf("You must enter a username to process!\n");
+        return 1;
+    }
 
     // Create the client socket.
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -38,13 +48,15 @@ int main()
         return -1;
     }
     printf("Connection Successful!\n");
-
-    // Communicate with the server.
+    // Display welcome message from server.
+    recv(client_socket, server_message, sizeof(server_message), 0);
 
     // char *message;
     // message = "HELLO MATRIX!\n";
+    // Communicate with the server.
     while (1)
     {
+
         // Get a message to send to the server.
         printf("Client: ");
         fgets(client_message, sizeof(client_message), stdin);
