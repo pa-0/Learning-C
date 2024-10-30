@@ -6,7 +6,6 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <sys/time.h>
-#include <pthread.h>
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 6302
@@ -21,6 +20,7 @@ int main()
 
     printf("Choose a username to chat with: ");
     fgets(username, sizeof(username), stdin);
+    username[strcspn(username, "\n")] = '\0';
 
     if (strlen(username) < 3)
     {
@@ -45,9 +45,11 @@ int main()
     if (connect(client_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
         perror("Connection Failed!\n");
+        printf("==================\n");
         return -1;
     }
     printf("Connection Successful!\n");
+    printf("======================\n");
     // Send username to server.
     send(client_socket, username, strlen(username), 0);
 
@@ -62,7 +64,7 @@ int main()
     {
 
         // Get a message to send to the server.
-        printf("%s: ", username);
+        printf("%s #=> ", username);
         fgets(client_message, sizeof(client_message), stdin);
 
         // Send the message to the server.
@@ -80,7 +82,7 @@ int main()
             break;
         }
 
-        printf("Server: %s\n", server_message);
+        printf("Server #=> %s\n", server_message);
     }
 
     close(client_socket);

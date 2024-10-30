@@ -26,7 +26,7 @@ void *clientHandler(void *args)
     char *username = client_args->username;
     char client_message[2000], server_message[2000], *welcomeMessage;
 
-    welcomeMessage = "Welcome To The ChatRoom!\n ";
+    welcomeMessage = "WELCOME TO THE CHAT ROOM\n==========================\n";
     // Display a welcome message and prompt for a username.
     send(client_socket, welcomeMessage, strlen(welcomeMessage), 0);
 
@@ -42,10 +42,10 @@ void *clientHandler(void *args)
             break;
         }
 
-        printf("%s: %s\n", username, client_message);
+        printf("%s #=> %s\n", username, client_message);
 
         // Get a message to send to the client.
-        printf("Server: ");
+        printf("Server #=> ");
         fgets(server_message, sizeof(server_message), stdin);
 
         // Send the message to the client.
@@ -108,6 +108,7 @@ int main()
     while ((client_socket = accept(server_socket, (struct sockaddr *)&client_addr, &client_addr_size)))
     {
         printf("Connection Accepted!\n");
+        printf("=====================\n");
 
         // // Allocate memory for new client socket.
         // new_socket = malloc(sizeof(int));
@@ -124,6 +125,7 @@ int main()
             // Null-terminate the received string.
             username[bytes_received] = '\0';
             printf("Received username: %s\n", username);
+            printf("====================================\n");
         }
 
         // Free allocated memory when done.
