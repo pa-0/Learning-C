@@ -48,12 +48,16 @@ int main()
         return -1;
     }
     printf("Connection Successful!\n");
-    // Display welcome message from server.
-    recv(client_socket, server_message, sizeof(server_message), 0);
+    // Send username to server.
+    send(client_socket, username, strlen(username), 0);
 
     // char *message;
     // message = "HELLO MATRIX!\n";
     // Communicate with the server.
+    // Display welcome message from server.
+    recv(client_socket, server_message, sizeof(server_message), 0);
+    printf("%s\n", server_message);
+
     while (1)
     {
 

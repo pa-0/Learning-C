@@ -11,6 +11,7 @@
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 6302
 #define MAX_CLIENTS 5
+#define USERNAME_SIZE 256
 
 void *clientHandler(void *socket_desc)
 {
@@ -19,7 +20,7 @@ void *clientHandler(void *socket_desc)
 
     welcomeMessage = "Welcome To The ChatRoom!\n ";
     // Display a welcome message and prompt for a username.
-    write(client_socket, welcomeMessage, strlen(welcomeMessage));
+    send(client_socket, welcomeMessage, strlen(welcomeMessage), 0);
 
     // Handle client communication.
     while (1)
@@ -35,9 +36,9 @@ void *clientHandler(void *socket_desc)
 
         printf("Client: %s\n", client_message);
 
-        // // Get a message to send to the client.
-        // printf("Server: ");
-        // fgets(server_message, sizeof(server_message), stdin);
+        // Get a message to send to the client.
+        printf("Server: ");
+        fgets(server_message, sizeof(server_message), stdin);
 
         // Send the message to the client.
         if (send(client_socket, server_message, strlen(server_message), 0) < 0)
@@ -59,6 +60,12 @@ int main()
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_addr_size = sizeof(client_addr);
     // char *message;
+    char *username = malloc(USERNAME_SIZE);
+    if (username == NULL)
+    {
+        perror("Memory allocation failed");
+        exit(1);
+    }
 
     // Create server socket.
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -97,6 +104,24 @@ int main()
         // Allocate memory for new client socket.
         new_socket = malloc(sizeof(int));
         *new_socket = client_socket;
+
+        // Receive data into 'username' buffer.
+        int bytes_received = recv(client_socket, username, USERNAME_SIZE - 1, 0);
+        if (bytes_received < 0)
+        {
+            perror("Received Failed!\n");
+        }
+        else
+        {
+            // Null-terminate the received string.
+            username[bytes_received] = '\0';
+            printf("Received username: %s\n", username);
+        }
+
+        // Free allocated memory when done.
+        free(username);
+
+        // printf("%s\n", username);
 
         // Create new thread for the client.
         pthread_t client_thread;
