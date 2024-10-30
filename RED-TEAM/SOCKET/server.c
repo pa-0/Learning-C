@@ -110,10 +110,6 @@ int main()
         printf("Connection Accepted!\n");
         printf("=====================\n");
 
-        // // Allocate memory for new client socket.
-        // new_socket = malloc(sizeof(int));
-        // *new_socket = client_socket;
-
         // Receive data into 'username' buffer.
         int bytes_received = recv(client_socket, username, USERNAME_SIZE - 1, 0);
         if (bytes_received < 0)
@@ -129,7 +125,6 @@ int main()
         }
 
         // Free allocated memory when done.
-        // free(username);
 
         // Allocate and initialize arguments struct.
         ClientArgs *client_args = malloc(sizeof(ClientArgs));
@@ -155,6 +150,7 @@ int main()
 
         pthread_detach(client_thread);
     }
+    free(username);
     if (client_socket < 0)
     {
         perror("Failed to accept client connection!\n");
