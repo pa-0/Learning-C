@@ -13,9 +13,17 @@
 #define MAX_CLIENTS 5
 #define USERNAME_SIZE 256
 
-void *clientHandler(void *socket_desc)
+typedef struct
 {
-    int client_socket = *(int *)socket_desc;
+    int client_socket;
+    char *username;
+} ClientArgs;
+
+void *clientHandler(void *args)
+{
+    ClientArgs *client_args = (ClientArgs *)args;
+    int client_socket = client_args->client_socket;
+    char *username = client_args->username;
     char client_message[2000], server_message[2000], *welcomeMessage;
 
     welcomeMessage = "Welcome To The ChatRoom!\n ";
@@ -34,7 +42,7 @@ void *clientHandler(void *socket_desc)
             break;
         }
 
-        printf("Client: %s\n", client_message);
+        printf("%s: %s\n", username, client_message);
 
         // Get a message to send to the client.
         printf("Server: ");
@@ -49,14 +57,14 @@ void *clientHandler(void *socket_desc)
     }
     // Close client socket and free memory
     close(client_socket);
-    free(socket_desc);
+    free(client_args);
     pthread_exit(NULL);
 }
 
 int main()
 {
 
-    int server_socket, client_socket, *new_socket;
+    int server_socket, client_socket;
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_addr_size = sizeof(client_addr);
     // char *message;
@@ -101,9 +109,9 @@ int main()
     {
         printf("Connection Accepted!\n");
 
-        // Allocate memory for new client socket.
-        new_socket = malloc(sizeof(int));
-        *new_socket = client_socket;
+        // // Allocate memory for new client socket.
+        // new_socket = malloc(sizeof(int));
+        // *new_socket = client_socket;
 
         // Receive data into 'username' buffer.
         int bytes_received = recv(client_socket, username, USERNAME_SIZE - 1, 0);
@@ -119,18 +127,31 @@ int main()
         }
 
         // Free allocated memory when done.
-        free(username);
+        // free(username);
+
+        // Allocate and initialize arguments struct.
+        ClientArgs *client_args = malloc(sizeof(ClientArgs));
+        if (client_args == NULL)
+        {
+            perror("Memory allocation failed");
+            continue;
+        }
+
+        client_args->client_socket = client_socket;
+        client_args->username = username;
 
         // printf("%s\n", username);
 
         // Create new thread for the client.
         pthread_t client_thread;
-        if (pthread_create(&client_thread, NULL, clientHandler, (void *)new_socket) < 0)
+        if (pthread_create(&client_thread, NULL, clientHandler, (void *)client_args) < 0)
         {
             perror("Failed to create thread!\n");
-            free(new_socket);
+            free(client_args);
             return 1;
         }
+
+        pthread_detach(client_thread);
     }
     if (client_socket < 0)
     {

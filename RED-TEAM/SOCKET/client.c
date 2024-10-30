@@ -62,7 +62,7 @@ int main()
     {
 
         // Get a message to send to the server.
-        printf("Client: ");
+        printf("%s: ", username);
         fgets(client_message, sizeof(client_message), stdin);
 
         // Send the message to the server.
