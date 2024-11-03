@@ -6,9 +6,36 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <pthread.h>
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 6302
+
+void *receive_messages(void *socket_desc){
+    int client_socket = *(int *)socket_desc;
+    char buffer[1024];
+    int bytes_received;
+
+    while ((bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0)) > 0)
+    {
+        buffer[bytes_received] = '\0';
+        printf("%s\n", buffer);
+    }
+    
+    if (bytes_received == 0)
+    {
+        printf("Server Disconnected!\n");
+    }
+    else if (bytes_received < 0)
+    {
+        perror("Error receiving data\n");
+    }
+    
+    // Close the socket when done.
+    close(client_socket);
+    pthread_exit(NULL);
+    
+}
 
 int main()
 {
@@ -17,6 +44,7 @@ int main()
     int client_socket;
     struct sockaddr_in server_addr;
     char client_message[2000], server_message[2000];
+    pthread_t receive_thread;
 
     printf("Choose a username to chat with: ");
     fgets(username, sizeof(username), stdin);
@@ -60,15 +88,25 @@ int main()
     recv(client_socket, server_message, sizeof(server_message), 0);
     printf("%s\n", server_message);
 
+    // Create a thread for receiving messages.
+    if (pthread_create(&receive_thread, NULL, receive_messages, (void *)&client_socket) != 0)
+    {
+        perror("Failed to create thread!\n");
+        return 1;
+    }
+    
     while (1)
     {
 
         // Get a message to send to the server.
         printf("%s #=> ", username);
         fgets(client_message, sizeof(client_message), stdin);
+        
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer), "%s #=> %s\n", username, client_message);
 
         // Send the message to the server.
-        if (send(client_socket, client_message, strlen(client_message), 0) < 0)
+        if (send(client_socket, buffer, strlen(buffer), 0) < 0)
         {
             perror("Failed to send message to the client!");
             break;
@@ -82,10 +120,11 @@ int main()
             break;
         }
 
-        printf("Server #=> %s\n", server_message);
+        printf("%s\n", server_message);
     }
 
     close(client_socket);
+    pthread_join(receive_thread, NULL);
 
     return 0;
 }
