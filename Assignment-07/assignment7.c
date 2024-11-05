@@ -29,7 +29,7 @@ int main(void)
   
   if (((a*(solution2*solution2)) + (b*solution2) + c) == 0) 
   {
-  	printf("[The solution using the '-' operator is: %f", solution2);
+  	printf("The solution using the '-' operator is: %f", solution2);
   }
   else
   {
